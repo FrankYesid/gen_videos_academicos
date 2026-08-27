@@ -40,7 +40,7 @@ dist-ssr/
 .env.local
 .env.*.local
 **/.env
-**/.env.*
+# **/.env.*
 PLAN.md
 **/PLAN.md
 
