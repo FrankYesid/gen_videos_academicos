@@ -1,0 +1,120 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: acvg-postgres
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-course_generator}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres} -d ${DATABASE_NAME:-course_generator}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - acvg-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: acvg-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - acvg-net
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: acvg-backend
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/course_generator}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - HEYGEN_MODE=${HEYGEN_MODE:-mock}
+      - HEYGEN_API_KEY=${HEYGEN_API_KEY:-}
+      - HEYGEN_BASE_URL=${HEYGEN_BASE_URL:-https://api.heygen.com}
+      - HEYGEN_AVATAR_ID=${HEYGEN_AVATAR_ID:-}
+      - HEYGEN_VOICE_ID=${HEYGEN_VOICE_ID:-}
+      - HEYGEN_TEMPLATE_ID=${HEYGEN_TEMPLATE_ID:-}
+      - HEYGEN_WEBHOOK_SECRET=${HEYGEN_WEBHOOK_SECRET:-}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-50}
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-es}
+      - QA_MIN_SCORE=${QA_MIN_SCORE:-80}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://frontend:5173}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - HEYGEN_TIMEOUT=${HEYGEN_TIMEOUT:-120}
+      - HEYGEN_MAX_RETRIES=${HEYGEN_MAX_RETRIES:-3}
+      - HEYGEN_WEBHOOK_URL=${HEYGEN_WEBHOOK_URL:-}
+      # - FORCE_NO_FALLBACK=true   # Descomentar solo PARA PRUEBAS EXPERTOS: 0 fallback.
+      #                             Si la llamada LLM/HeyGen falla, retorna HTTP error.
+      #                             Por defecto comentado para máxima robustez.
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
+      - ./storage:/app/storage
+      - ./database:/app/database
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; r=urllib.request.urlopen('http://localhost:8000/api/v1/health'); sys.exit(0 if r.status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - acvg-net
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: acvg-frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:${BACKEND_PORT:-8000}/api/v1
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5173',(r)=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - acvg-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  acvg-net:
+    driver: bridge

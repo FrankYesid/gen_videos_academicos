@@ -1,0 +1,94 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm
+.eslintcache
+.vite/
+
+# Environment
+.env
+.env.*
+.env.local
+.env.*.local
+**/.env
+**/.env.*
+PLAN.md
+**/PLAN.md
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Storage
+storage/documents/*
+storage/scripts/*
+storage/videos/*
+storage/thumbnails/*
+!storage/documents/.gitkeep
+!storage/scripts/.gitkeep
+!storage/videos/.gitkeep
+!storage/thumbnails/.gitkeep
+
+# Database
+database/migrations/versions/*
+!database/migrations/versions/.gitkeep
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Playwright / E2E
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Secrets
+*.pem
+*.key
+*.log
+**/PLAN.md

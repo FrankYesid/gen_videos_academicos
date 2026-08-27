@@ -1,0 +1,2091 @@
+AI COURSE VIDEO GENERATOR
+ESPECIFICACION MAESTRA DEL PROYECTO
+
+============================================================
+1. DESCRIPCION DEL PROYECTO
+============================================================
+
+Construir una plataforma Full Stack denominada:
+
+AI Course Video Generator
+
+Objetivo:
+
+Permitir que un usuario cargue un archivo PDF con contenido academico y que el sistema transforme automaticamente ese contenido en una clase educativa en video utilizando Inteligencia Artificial.
+
+Flujo principal:
+
+PDF
+-> Extraccion de contenido
+-> Analisis del contenido
+-> Identificacion del tema
+-> Diseno pedagogico
+-> Generacion del guion
+-> Validacion del guion
+-> Generacion del video
+-> Integracion con HeyGen
+-> Seguimiento del procesamiento
+-> Webhook
+-> Control de calidad
+-> Video final
+
+La aplicacion debe estar documentada, probada y preparada para ejecutarse localmente mediante Docker.
+
+
+============================================================
+2. OBJETIVO GENERAL
+============================================================
+
+La plataforma debe permitir:
+
+1. Subir un archivo PDF.
+2. Validar que el archivo sea valido.
+3. Extraer el contenido del PDF.
+4. Identificar automaticamente:
+   - titulo
+   - tema
+   - subtemas
+   - conceptos principales
+   - conceptos secundarios
+   - objetivos de aprendizaje
+   - nivel de dificultad
+   - requisitos previos
+   - idioma
+5. Disenar una estructura pedagogica.
+6. Generar un guion educativo.
+7. Dividir el contenido en escenas.
+8. Mostrar el guion antes de generar el video.
+9. Permitir al usuario aprobar el guion.
+10. Generar el video mediante HeyGen.
+11. Recibir actualizaciones mediante webhook.
+12. Mostrar el progreso al usuario.
+13. Ejecutar un proceso de QA.
+14. Guardar el video final.
+15. Mostrar el video en el frontend.
+16. Mantener un historial de cursos generados.
+17. Registrar las ejecuciones de cada agente.
+18. Disponer de pruebas unitarias.
+19. Disponer de pruebas de integracion.
+20. Disponer de pruebas End-to-End.
+21. Disponer de documentacion completa.
+
+
+============================================================
+3. PRINCIPIOS DE DESARROLLO
+============================================================
+
+El proyecto debe seguir estos principios:
+
+- Codigo limpio.
+- Arquitectura modular.
+- Separacion de responsabilidades.
+- Tipado fuerte.
+- Validacion de datos.
+- Manejo explicito de errores.
+- Logs estructurados.
+- Variables de entorno.
+- Nunca almacenar API keys en el frontend.
+- Nunca colocar secretos directamente en el codigo.
+- Codigo testeable.
+- Codigo documentado.
+- API versionada.
+- Servicios externos desacoplados.
+- Uso de interfaces cuando sea apropiado.
+- Dependencias minimas.
+- Evitar codigo duplicado.
+- No utilizar codigo ficticio para simular integraciones reales salvo en modo MOCK.
+- Todas las integraciones externas deben disponer de un modo MOCK para pruebas.
+
+
+============================================================
+4. STACK TECNOLOGICO
+============================================================
+
+FRONTEND
+
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- React Router
+- Axios o Fetch API
+- TanStack Query
+- Vitest
+- Playwright
+
+BACKEND
+
+- Python 3.12+
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- Alembic
+- Pytest
+
+BASE DE DATOS
+
+- PostgreSQL
+
+COLA / PROCESAMIENTO ASINCRONO
+
+- Redis
+- Celery o alternativa equivalente para tareas asincronas
+
+INTELIGENCIA ARTIFICIAL
+
+- OpenAI API
+- Preferir Structured Outputs / JSON Schema para las respuestas de los agentes
+
+GENERACION DE VIDEO
+
+- HeyGen API
+- Utilizar la documentacion oficial actual de HeyGen para:
+  - endpoints
+  - autenticacion
+  - generacion
+  - estado
+  - webhooks
+  - templates
+  - Video Agent
+
+No inventar endpoints.
+
+INFRAESTRUCTURA
+
+- Docker
+- Docker Compose
+
+
+============================================================
+5. ARQUITECTURA GENERAL
+============================================================
+
+                         +---------------------+
+                         |       USUARIO       |
+                         |                     |
+                         |      Sube PDF       |
+                         +----------+----------+
+                                    |
+                                    v
++------------------------------------------------------------+
+|                        FRONTEND                            |
+|                                                            |
+|                    React + TypeScript                      |
+|                                                            |
+| Dashboard                                                   |
+| Upload                                                     |
+| Analysis                                                   |
+| Script                                                     |
+| Video                                                      |
+| History                                                    |
++--------------------------+---------------------------------+
+                           |
+                           | REST API
+                           v
++------------------------------------------------------------+
+|                        BACKEND                             |
+|                                                            |
+|                      FastAPI                               |
+|                                                            |
+| API                                                        |
+|  Documents                                                 |
+|  Courses                                                   |
+|  Analysis                                                  |
+|  Scripts                                                   |
+|  Videos                                                    |
+|  Webhooks                                                  |
+|                                                            |
+|                    ORCHESTRATOR                            |
+|                                                            |
+| PDF                                                        |
+|  |                                                         |
+|  v                                                         |
+| Analyzer Agent                                             |
+|  |                                                         |
+|  v                                                         |
+| Pedagogical Agent                                          |
+|  |                                                         |
+|  v                                                         |
+| Script Agent                                               |
+|  |                                                         |
+|  v                                                         |
+| Video Agent                                                |
+|  |                                                         |
+|  v                                                         |
+| QA Agent                                                   |
++-------------+----------------------+-----------------------+
+              |                      |
+              v                      v
+       PostgreSQL               External APIs
+                                      |
+                         +------------+------------+
+                         |                         |
+                         v                         v
+                      OpenAI                    HeyGen
+                                                  |
+                                                  v
+                                             Video MP4
+
+
+============================================================
+6. ESTRUCTURA DEL PROYECTO
+============================================================
+
+ai-course-video-generator/
+|
++-- README.md
++-- PROJECT_SPECIFICATION.md
++-- CHANGELOG.md
++-- LICENSE
++-- .gitignore
++-- .env.example
++-- docker-compose.yml
++-- Makefile
+|
++-- docs/
+|   |
+|   +-- architecture/
+|   |   +-- system-architecture.md
+|   |   +-- frontend-architecture.md
+|   |   +-- backend-architecture.md
+|   |   +-- agent-architecture.md
+|   |   +-- data-flow.md
+|   |   +-- sequence-diagrams.md
+|   |
+|   +-- api/
+|   |   +-- endpoints.md
+|   |   +-- authentication.md
+|   |   +-- errors.md
+|   |   +-- webhooks.md
+|   |
+|   +-- agents/
+|   |   +-- analyzer-agent.md
+|   |   +-- pedagogical-agent.md
+|   |   +-- script-agent.md
+|   |   +-- video-agent.md
+|   |   +-- qa-agent.md
+|   |
+|   +-- setup/
+|   |   +-- installation.md
+|   |   +-- environment.md
+|   |   +-- development.md
+|   |   +-- troubleshooting.md
+|   |
+|   +-- testing/
+|   |   +-- testing-strategy.md
+|   |   +-- unit-tests.md
+|   |   +-- integration-tests.md
+|   |   +-- e2e-tests.md
+|   |
+|   +-- deployment/
+|       +-- docker.md
+|       +-- production.md
+|       +-- security.md
+|
++-- backend/
+|   |
+|   +-- app/
+|   |   +-- main.py
+|   |   |
+|   |   +-- api/
+|   |   |   +-- router.py
+|   |   |   +-- routes/
+|   |   |       +-- health.py
+|   |   |       +-- documents.py
+|   |   |       +-- courses.py
+|   |   |       +-- analysis.py
+|   |   |       +-- scripts.py
+|   |   |       +-- videos.py
+|   |   |       +-- webhooks.py
+|   |   |
+|   |   +-- agents/
+|   |   |   +-- base_agent.py
+|   |   |   +-- analyzer_agent.py
+|   |   |   +-- pedagogical_agent.py
+|   |   |   +-- script_agent.py
+|   |   |   +-- video_agent.py
+|   |   |   +-- qa_agent.py
+|   |   |
+|   |   +-- services/
+|   |   |   +-- document_service.py
+|   |   |   +-- extraction_service.py
+|   |   |   +-- openai_service.py
+|   |   |   +-- heygen_service.py
+|   |   |   +-- storage_service.py
+|   |   |   +-- course_service.py
+|   |   |   +-- workflow_service.py
+|   |   |
+|   |   +-- models/
+|   |   |   +-- document.py
+|   |   |   +-- course.py
+|   |   |   +-- lesson.py
+|   |   |   +-- scene.py
+|   |   |   +-- video.py
+|   |   |   +-- agent_run.py
+|   |   |
+|   |   +-- schemas/
+|   |   |   +-- document.py
+|   |   |   +-- course.py
+|   |   |   +-- analysis.py
+|   |   |   +-- pedagogical.py
+|   |   |   +-- script.py
+|   |   |   +-- video.py
+|   |   |
+|   |   +-- prompts/
+|   |   |   +-- analyzer.txt
+|   |   |   +-- pedagogical.txt
+|   |   |   +-- script.txt
+|   |   |   +-- video.txt
+|   |   |   +-- qa.txt
+|   |   |
+|   |   +-- core/
+|   |   |   +-- config.py
+|   |   |   +-- database.py
+|   |   |   +-- logging.py
+|   |   |   +-- security.py
+|   |   |
+|   |   +-- workers/
+|   |       +-- tasks.py
+|   |       +-- video_tasks.py
+|   |
+|   +-- tests/
+|   |   +-- unit/
+|   |   +-- integration/
+|   |   +-- e2e/
+|   |
+|   +-- requirements.txt
+|   +-- Dockerfile
+|
++-- frontend/
+|   |
+|   +-- src/
+|   |   +-- components/
+|   |   |   +-- FileUploader.tsx
+|   |   |   +-- CourseCard.tsx
+|   |   |   +-- AnalysisViewer.tsx
+|   |   |   +-- ObjectivesList.tsx
+|   |   |   +-- ConceptsList.tsx
+|   |   |   +-- ScriptViewer.tsx
+|   |   |   +-- SceneCard.tsx
+|   |   |   +-- ProgressBar.tsx
+|   |   |   +-- StatusBadge.tsx
+|   |   |   +-- VideoPlayer.tsx
+|   |   |
+|   |   +-- pages/
+|   |   |   +-- Dashboard.tsx
+|   |   |   +-- Upload.tsx
+|   |   |   +-- Analysis.tsx
+|   |   |   +-- Script.tsx
+|   |   |   +-- Video.tsx
+|   |   |
+|   |   +-- services/
+|   |   |   +-- api.ts
+|   |   |   +-- documents.ts
+|   |   |   +-- courses.ts
+|   |   |   +-- analysis.ts
+|   |   |   +-- videos.ts
+|   |   |
+|   |   +-- hooks/
+|   |   |   +-- useDocuments.ts
+|   |   |   +-- useCourse.ts
+|   |   |   +-- useVideoStatus.ts
+|   |   |
+|   |   +-- types/
+|   |   |   +-- document.ts
+|   |   |   +-- course.ts
+|   |   |   +-- analysis.ts
+|   |   |   +-- video.ts
+|   |   |
+|   |   +-- utils/
+|   |   |   +-- formatting.ts
+|   |   |
+|   |   +-- App.tsx
+|   |   +-- main.tsx
+|   |
+|   +-- tests/
+|   |   +-- components/
+|   |   +-- e2e/
+|   |
+|   +-- package.json
+|   +-- Dockerfile
+|
++-- database/
+|   +-- migrations/
+|   +-- seed/
+|
++-- storage/
+|   +-- documents/
+|   +-- scripts/
+|   +-- videos/
+|   +-- thumbnails/
+|
++-- scripts/
+|   +-- setup.sh
+|   +-- dev.sh
+|   +-- test.sh
+|   +-- reset.sh
+|
++-- tests/
+    +-- fixtures/
+    |   +-- sample_course.pdf
+    +-- integration/
+    +-- e2e/
+
+
+============================================================
+7. WORKFLOW COMPLETO
+============================================================
+
+Estados:
+
+CREATED
+UPLOADED
+EXTRACTING
+ANALYZING
+PEDAGOGICAL_DESIGN
+SCRIPT_GENERATED
+SCRIPT_VALIDATED
+VIDEO_GENERATING
+VIDEO_PROCESSING
+VIDEO_READY
+QA
+COMPLETED
+FAILED
+
+Flujo:
+
+CREATED
+  |
+  v
+UPLOADED
+  |
+  v
+EXTRACTING
+  |
+  v
+ANALYZING
+  |
+  v
+PEDAGOGICAL_DESIGN
+  |
+  v
+SCRIPT_GENERATED
+  |
+  v
+SCRIPT_VALIDATED
+  |
+  v
+VIDEO_GENERATING
+  |
+  v
+VIDEO_PROCESSING
+  |
+  v
+VIDEO_READY
+  |
+  v
+QA
+  |
+  v
+COMPLETED
+
+En caso de error:
+
+ANY STATE
+  |
+  v
+FAILED
+  |
+  v
+RETRY
+
+
+============================================================
+8. SUBIDA Y PROCESAMIENTO DEL PDF
+============================================================
+
+El frontend debe permitir:
+
+- Drag & Drop.
+- Seleccion manual.
+- Mostrar nombre.
+- Mostrar tamano.
+- Validar extension.
+- Validar MIME type.
+- Mostrar progreso.
+- Mostrar errores.
+
+Inicialmente aceptar:
+
+application/pdf
+
+Limite configurable:
+
+MAX_FILE_SIZE_MB=50
+
+Endpoint:
+
+POST /api/v1/documents
+
+Utilizar multipart/form-data.
+
+Proceso:
+
+1. Validar archivo.
+2. Generar hash SHA-256.
+3. Guardar archivo.
+4. Registrar documento en PostgreSQL.
+5. Extraer texto.
+6. Registrar numero de paginas.
+7. Guardar texto extraido.
+8. Crear Course.
+9. Iniciar workflow.
+
+Utilizar una libreria como PyMuPDF.
+
+Si el PDF no contiene texto:
+
+- Detectar ausencia de texto.
+- Informar al usuario.
+- Preparar arquitectura para OCR futuro.
+
+No implementar OCR complejo en el MVP salvo que sea necesario.
+
+
+============================================================
+9. DOCUMENT ANALYZER AGENT
+============================================================
+
+Archivo:
+
+backend/app/agents/analyzer_agent.py
+
+Responsabilidad:
+
+Analizar el contenido academico y generar una representacion estructurada.
+
+Entrada:
+
+{
+  "document_id": "uuid",
+  "text": "contenido extraido"
+}
+
+Salida:
+
+{
+  "title": "Regresion Lineal",
+  "subject": "Machine Learning",
+  "level": "beginner",
+  "language": "es",
+  "summary": "...",
+  "concepts": [],
+  "main_topics": [],
+  "prerequisites": [],
+  "keywords": []
+}
+
+Utilizar Pydantic para validar la salida.
+
+
+============================================================
+10. PEDAGOGICAL AGENT
+============================================================
+
+Archivo:
+
+backend/app/agents/pedagogical_agent.py
+
+Responsabilidad:
+
+Transformar el contenido academico en una estructura de aprendizaje.
+
+Debe generar:
+
+- Objetivo general.
+- Objetivos especificos.
+- Nivel.
+- Duracion estimada.
+- Orden de ensenanza.
+- Conceptos que requieren explicacion.
+- Ejemplos.
+- Analogias.
+- Aplicaciones.
+- Errores comunes.
+- Resumen.
+- Actividad sugerida.
+
+Salida:
+
+{
+  "general_objective": "...",
+  "specific_objectives": [],
+  "prerequisites": [],
+  "lesson_structure": [],
+  "examples": [],
+  "common_mistakes": [],
+  "summary": "...",
+  "estimated_duration_minutes": 10
+}
+
+
+============================================================
+11. SCRIPT AGENT
+============================================================
+
+Archivo:
+
+backend/app/agents/script_agent.py
+
+Responsabilidad:
+
+Convertir la estructura pedagogica en un guion audiovisual.
+
+Cada escena debe tener:
+
+{
+  "id": 1,
+  "title": "Introduccion",
+  "duration_seconds": 45,
+  "narration": "...",
+  "visual_instruction": "...",
+  "on_screen_text": "...",
+  "educational_purpose": "..."
+}
+
+El guion debe contener:
+
+1. Introduccion.
+2. Objetivos.
+3. Desarrollo.
+4. Ejemplos.
+5. Aplicacion.
+6. Resumen.
+7. Cierre.
+
+Evitar:
+
+- Texto excesivamente largo en pantalla.
+- Informacion no respaldada por el PDF.
+- Conceptos inventados.
+- Datos no verificables.
+- Escenas sin proposito pedagogico.
+
+
+============================================================
+12. REVISION Y APROBACION DEL GUION
+============================================================
+
+Antes de llamar a HeyGen:
+
+Mostrar al usuario:
+
+- Titulo.
+- Objetivos.
+- Conceptos.
+- Duracion.
+- Numero de escenas.
+- Guion completo.
+
+Permitir:
+
+[ Aprobar guion ]
+[ Regenerar guion ]
+
+No generar video hasta que el usuario apruebe el guion.
+
+
+============================================================
+13. VIDEO AGENT
+============================================================
+
+Archivo:
+
+backend/app/agents/video_agent.py
+
+Responsabilidad:
+
+Preparar la informacion para HeyGen.
+
+El resto de la aplicacion nunca debe llamar directamente a HeyGen.
+
+Utilizar:
+
+HeyGenService
+
+como unico punto de integracion.
+
+
+============================================================
+14. HEYGEN SERVICE
+============================================================
+
+Archivo:
+
+backend/app/services/heygen_service.py
+
+Implementar una interfaz clara.
+
+Metodos conceptuales:
+
+create_video(...)
+get_video_status(...)
+handle_webhook(...)
+download_video(...)
+
+La implementacion debe basarse exclusivamente en la documentacion oficial actual de HeyGen.
+
+No inventar endpoints.
+
+No hardcodear:
+
+- API key.
+- Avatar ID.
+- Voice ID.
+- Template ID.
+
+Utilizar variables de entorno.
+
+Variables:
+
+HEYGEN_API_KEY=
+HEYGEN_AVATAR_ID=
+HEYGEN_VOICE_ID=
+HEYGEN_TEMPLATE_ID=
+HEYGEN_WEBHOOK_SECRET=
+
+
+============================================================
+15. ESTRATEGIAS DE VIDEO
+============================================================
+
+El sistema debe soportar dos estrategias.
+
+ESTRATEGIA A: HEYGEN VIDEO AGENT
+
+Ventajas:
+
+- Mayor automatizacion.
+- Menor trabajo inicial.
+- Generacion desde una descripcion/prompt.
+
+ESTRATEGIA B: HEYGEN TEMPLATE API
+
+Ventajas:
+
+- Mayor control.
+- Consistencia visual.
+- Control de escenas.
+- Ideal para cursos completos.
+
+Crear una abstraccion:
+
+VideoProvider
+
+Implementaciones:
+
+HeyGenVideoAgentProvider
+HeyGenTemplateProvider
+MockVideoProvider
+
+El sistema no debe quedar acoplado a una sola estrategia.
+
+
+============================================================
+16. MODO MOCK
+============================================================
+
+Variable:
+
+HEYGEN_MODE=mock
+
+Cuando este activa:
+
+- No realizar llamadas reales a HeyGen.
+- Utilizar MockVideoProvider.
+- Simular created.
+- Simular processing.
+- Simular completed.
+- Devolver un recurso de prueba.
+
+Produccion:
+
+HEYGEN_MODE=production
+
+
+============================================================
+17. WEBHOOKS
+============================================================
+
+Endpoint:
+
+POST /api/v1/webhooks/heygen
+
+Debe:
+
+1. Recibir evento.
+2. Validar autenticidad si HeyGen proporciona mecanismo de firma.
+3. Identificar video.
+4. Actualizar estado.
+5. Guardar URL.
+6. Guardar thumbnail.
+7. Guardar timestamp.
+8. Registrar log.
+
+No confiar en datos externos sin validacion.
+
+
+============================================================
+18. QA AGENT
+============================================================
+
+Archivo:
+
+backend/app/agents/qa_agent.py
+
+Responsabilidad:
+
+Validar que el producto final cumple requisitos.
+
+Evaluar:
+
+- Contenido.
+- Exactitud.
+- Cobertura.
+- Coherencia.
+- Objetivos.
+- Duracion.
+- Estructura.
+- Calidad pedagogica.
+
+Salida:
+
+{
+  "status": "approved",
+  "score": 94,
+  "issues": [],
+  "recommendations": []
+}
+
+Configurar:
+
+QA_MIN_SCORE=80
+
+Si el score es menor:
+
+REJECTED
+
+Permitir regeneracion.
+
+
+============================================================
+19. BASE DE DATOS
+============================================================
+
+TABLA documents
+
+- id
+- filename
+- file_path
+- file_hash
+- mime_type
+- file_size
+- page_count
+- extracted_text
+- status
+- created_at
+- updated_at
+
+TABLA courses
+
+- id
+- document_id
+- title
+- description
+- subject
+- level
+- language
+- status
+- created_at
+- updated_at
+
+TABLA lessons
+
+- id
+- course_id
+- title
+- objectives
+- duration
+- status
+- created_at
+- updated_at
+
+TABLA scenes
+
+- id
+- lesson_id
+- order
+- title
+- narration
+- visual_instruction
+- on_screen_text
+- duration
+- educational_purpose
+- created_at
+
+TABLA videos
+
+- id
+- lesson_id
+- provider
+- provider_video_id
+- status
+- video_url
+- thumbnail_url
+- duration
+- created_at
+- completed_at
+
+TABLA agent_runs
+
+- id
+- course_id
+- agent_name
+- input
+- output
+- status
+- error
+- started_at
+- completed_at
+
+La tabla agent_runs es fundamental para auditoria.
+
+
+============================================================
+20. API REST
+============================================================
+
+GET    /api/v1/health
+
+POST   /api/v1/documents
+GET    /api/v1/documents
+GET    /api/v1/documents/{id}
+
+POST   /api/v1/courses
+GET    /api/v1/courses
+GET    /api/v1/courses/{id}
+
+POST   /api/v1/courses/{id}/analyze
+GET    /api/v1/courses/{id}/analysis
+
+POST   /api/v1/courses/{id}/generate-script
+GET    /api/v1/courses/{id}/script
+
+POST   /api/v1/courses/{id}/approve-script
+
+POST   /api/v1/courses/{id}/generate-video
+
+GET    /api/v1/courses/{id}/status
+
+GET    /api/v1/courses/{id}/video
+
+POST   /api/v1/webhooks/heygen
+
+Prefijo:
+
+/api/v1/
+
+
+============================================================
+21. FRONTEND
+============================================================
+
+Paginas:
+
+Dashboard
+Upload
+Analysis
+Script
+Video
+
+DASHBOARD
+
+Mostrar:
+
+- Cursos.
+- Estado.
+- Fecha.
+- Duracion.
+- Video.
+- Acciones.
+
+UPLOAD
+
+Mostrar:
+
+- Subir PDF.
+- Titulo opcional.
+- Idioma.
+- Nivel.
+- Duracion.
+- Avatar.
+- Voz.
+
+ANALYSIS
+
+Mostrar:
+
+- Titulo.
+- Tema.
+- Resumen.
+- Objetivos.
+- Conceptos.
+- Subtemas.
+- Requisitos.
+- Nivel.
+- Duracion estimada.
+
+SCRIPT
+
+Mostrar:
+
+- Escena 1.
+- Escena 2.
+- Escena 3.
+- etc.
+
+Permitir:
+
+- Aprobar.
+- Regenerar.
+
+VIDEO
+
+Mostrar:
+
+- Estado.
+- Progreso.
+- Video Player.
+- Thumbnail.
+- Duracion.
+- Fecha.
+
+
+============================================================
+22. COMUNICACION FRONTEND-BACKEND
+============================================================
+
+El frontend solo se comunica con el Backend.
+
+El frontend NO debe comunicarse directamente con:
+
+- OpenAI.
+- HeyGen.
+- PostgreSQL.
+- Redis.
+
+Flujo:
+
+Frontend
+  |
+  v
+Backend API
+  |
+  v
+Services
+  |
+  v
+External APIs
+
+
+============================================================
+23. SEGURIDAD
+============================================================
+
+Implementar:
+
+- CORS.
+- Validacion de archivos.
+- Limites de tamano.
+- Variables de entorno.
+- No exponer API keys.
+- Validacion de webhooks.
+- Sanitizacion de inputs.
+- Timeouts.
+- Retry.
+- Logging.
+- Manejo seguro de errores.
+
+Nunca devolver:
+
+OPENAI_API_KEY
+HEYGEN_API_KEY
+DATABASE_PASSWORD
+
+en respuestas HTTP.
+
+
+============================================================
+24. MANEJO DE ERRORES
+============================================================
+
+Todos los servicios externos deben implementar:
+
+- Timeout.
+- Retry.
+- Exponential Backoff.
+- Error Logging.
+- Graceful Failure.
+
+Crear errores especificos:
+
+DocumentExtractionError
+AIServiceError
+HeyGenAPIError
+VideoGenerationError
+ValidationError
+WorkflowError
+
+
+============================================================
+25. CONFIGURACION
+============================================================
+
+Crear:
+
+.env.example
+
+Contenido minimo:
+
+APP_ENV=development
+
+BACKEND_PORT=8000
+FRONTEND_PORT=5173
+
+DATABASE_URL=postgresql://postgres:postgres@postgres:5432/course_generator
+
+REDIS_URL=redis://redis:6379/0
+
+OPENAI_API_KEY=
+
+HEYGEN_API_KEY=
+HEYGEN_WEBHOOK_SECRET=
+HEYGEN_AVATAR_ID=
+HEYGEN_VOICE_ID=
+HEYGEN_TEMPLATE_ID=
+
+HEYGEN_MODE=mock
+
+MAX_FILE_SIZE_MB=50
+
+DEFAULT_LANGUAGE=es
+DEFAULT_DURATION_MINUTES=10
+
+QA_MIN_SCORE=80
+
+
+============================================================
+26. DOCKER
+============================================================
+
+Crear:
+
+- Dockerfile backend.
+- Dockerfile frontend.
+- docker-compose.yml.
+
+Servicios:
+
+- frontend.
+- backend.
+- postgres.
+- redis.
+
+Cada servicio debe tener:
+
+- healthcheck.
+- variables de entorno.
+- volumenes necesarios.
+- red interna.
+
+
+============================================================
+27. TESTING
+============================================================
+
+UNIT TESTS
+
+Implementar:
+
+test_pdf_validation
+test_pdf_extraction
+test_analyzer_schema
+test_pedagogical_schema
+test_script_schema
+test_video_payload
+test_webhook_processing
+test_workflow_state
+
+INTEGRATION TESTS
+
+Probar:
+
+PDF
+-> Extraction
+-> Analyzer
+-> Pedagogical
+-> Script
+
+utilizando mocks de OpenAI.
+
+Probar:
+
+Video Agent
+-> Mock HeyGen
+-> Status
+-> Webhook
+-> Video ready
+
+E2E
+
+Utilizar Playwright.
+
+Escenario:
+
+1. Abrir aplicacion.
+2. Subir sample_course.pdf.
+3. Esperar analisis.
+4. Visualizar objetivos.
+5. Visualizar conceptos.
+6. Visualizar guion.
+7. Aprobar guion.
+8. Generar video.
+9. Esperar procesamiento.
+10. Ver video.
+
+
+============================================================
+28. FIXTURE
+============================================================
+
+Crear:
+
+tests/fixtures/sample_course.pdf
+
+Debe ser un PDF pequeno y controlado para pruebas.
+
+El test E2E debe utilizar ese documento.
+
+No utilizar documentos externos en los tests.
+
+
+============================================================
+29. TESTING EN MODO MOCK
+============================================================
+
+Por defecto:
+
+HEYGEN_MODE=mock
+
+Ejecutar:
+
+pytest
+
+sin consumir creditos reales de HeyGen.
+
+Crear test separado:
+
+tests/integration/test_heygen_real.py
+
+Ejecutarlo solamente cuando:
+
+RUN_EXTERNAL_TESTS=true
+
+
+============================================================
+30. OBSERVABILIDAD
+============================================================
+
+Registrar:
+
+- request_id
+- course_id
+- document_id
+- agent_name
+- workflow_state
+- execution_time
+- provider
+- error
+
+No registrar API keys ni informacion sensible.
+
+
+============================================================
+31. DOCUMENTACION
+============================================================
+
+Crear obligatoriamente:
+
+README.md
+
+docs/
+  architecture/
+  api/
+  agents/
+  setup/
+  testing/
+  deployment/
+
+README debe explicar:
+
+1. Que es el proyecto.
+2. Arquitectura.
+3. Requisitos.
+4. Instalacion.
+5. Configuracion.
+6. Variables de entorno.
+7. Ejecucion.
+8. Tests.
+9. API.
+10. Workflow.
+11. Agentes.
+12. HeyGen.
+13. OpenAI.
+14. Docker.
+15. Troubleshooting.
+
+
+============================================================
+32. DOCUMENTACION DE AGENTES
+============================================================
+
+Cada agente debe tener un documento.
+
+Por ejemplo:
+
+docs/agents/analyzer-agent.md
+
+Debe incluir:
+
+- Objetivo.
+- Entrada.
+- Salida.
+- Prompt.
+- Modelo.
+- Schema.
+- Errores.
+- Tests.
+- Ejemplo.
+
+
+============================================================
+33. DIAGRAMAS
+============================================================
+
+Crear diagramas Mermaid en la documentacion.
+
+Ejemplo:
+
+sequenceDiagram
+
+User->>Frontend: Upload PDF
+Frontend->>Backend: POST /documents
+Backend->>Storage: Save PDF
+Backend->>Database: Create document
+Backend->>ExtractionService: Extract text
+ExtractionService-->>Backend: Text
+Backend->>AnalyzerAgent: Analyze
+AnalyzerAgent->>OpenAI: Request
+OpenAI-->>AnalyzerAgent: Structured output
+AnalyzerAgent-->>Backend: Analysis
+Backend->>PedagogicalAgent: Design lesson
+PedagogicalAgent-->>Backend: Lesson structure
+Backend->>ScriptAgent: Generate script
+ScriptAgent-->>Backend: Script
+Backend-->>Frontend: Script ready
+User->>Frontend: Approve
+Frontend->>Backend: Generate video
+Backend->>HeyGen: Create video
+HeyGen-->>Backend: Video ID
+HeyGen-->>Backend: Webhook
+Backend->>Database: Update status
+Frontend->>Backend: Get status
+Backend-->>Frontend: Video ready
+
+
+============================================================
+34. CONTROL DE CALIDAD DEL CONTENIDO
+============================================================
+
+Evitar alucinaciones.
+
+Reglas:
+
+1. El contenido debe basarse principalmente en el PDF.
+2. No inventar definiciones.
+3. No agregar estadisticas sin fuente.
+4. No introducir conceptos no presentes salvo que sean necesarios para explicar requisitos previos.
+5. Si se agrega informacion externa, marcarla.
+6. Mantener trazabilidad con el documento original.
+
+Idealmente, cada concepto importante debe asociarse a una pagina del PDF.
+
+Ejemplo:
+
+{
+  "concept": "Regresion Lineal",
+  "source_pages": [2, 3]
+}
+
+
+============================================================
+35. TRAZABILIDAD
+============================================================
+
+Guardar:
+
+PDF
+  |
+  v
+Extracted text
+  |
+  v
+Analysis
+  |
+  v
+Pedagogical design
+  |
+  v
+Script
+  |
+  v
+Scenes
+  |
+  v
+HeyGen request
+  |
+  v
+Video
+  |
+  v
+QA
+
+Cada etapa debe tener un identificador.
+
+
+============================================================
+36. VERSIONADO DE PROMPTS
+============================================================
+
+Los prompts deben estar en:
+
+backend/app/prompts/
+
+Versiones:
+
+ANALYZER_PROMPT_VERSION=1.0
+PEDAGOGICAL_PROMPT_VERSION=1.0
+SCRIPT_PROMPT_VERSION=1.0
+VIDEO_PROMPT_VERSION=1.0
+QA_PROMPT_VERSION=1.0
+
+Guardar la version utilizada en agent_runs.
+
+
+============================================================
+37. IDEMPOTENCIA
+============================================================
+
+Evitar generar dos veces el mismo video accidentalmente.
+
+Cada operacion de generacion debe tener mecanismo de idempotencia.
+
+Ejemplo:
+
+course_id
+script_version
+provider
+
+Si ya existe una generacion en progreso:
+
+NO crear otra.
+
+
+============================================================
+38. PROCESAMIENTO ASINCRONO
+============================================================
+
+Las operaciones largas NO deben bloquear una peticion HTTP.
+
+No hacer:
+
+POST /generate-video
+
+y esperar varios minutos.
+
+Debe funcionar:
+
+POST /generate-video
+  |
+  v
+202 Accepted
+  |
+  v
+job_id
+  |
+  v
+worker
+  |
+  v
+HeyGen
+  |
+  v
+webhook
+
+El frontend consulta:
+
+GET /courses/{id}/status
+
+o utilizar WebSocket/SSE posteriormente.
+
+
+============================================================
+39. RESPUESTA DE GENERACION
+============================================================
+
+Ejemplo:
+
+{
+  "course_id": "uuid",
+  "status": "VIDEO_GENERATING",
+  "job_id": "uuid"
+}
+
+
+============================================================
+40. ESTADO
+============================================================
+
+Endpoint:
+
+GET /api/v1/courses/{id}/status
+
+Respuesta:
+
+{
+  "course_id": "uuid",
+  "status": "VIDEO_PROCESSING",
+  "progress": 75,
+  "current_step": "Rendering video"
+}
+
+
+============================================================
+41. VIDEO FINAL
+============================================================
+
+Cuando finalice:
+
+{
+  "course_id": "uuid",
+  "status": "COMPLETED",
+  "video": {
+    "url": "...",
+    "thumbnail_url": "...",
+    "duration": 623
+  },
+  "qa": {
+    "status": "approved",
+    "score": 94
+  }
+}
+
+
+============================================================
+42. DESARROLLO POR FASES
+============================================================
+
+NO intentar construir todo simultaneamente.
+
+Implementar las siguientes fases.
+
+
+FASE 1 - FOUNDATION
+
+Crear:
+
+- repositorio
+- backend
+- frontend
+- Docker
+- PostgreSQL
+- Redis
+- configuracion
+- README
+
+Validacion:
+
+docker compose up
+
+Debe levantar:
+
+- Frontend.
+- Backend.
+- PostgreSQL.
+- Redis.
+
+Crear:
+
+GET /api/v1/health
+
+Respuesta:
+
+{
+  "status": "ok"
+}
+
+
+FASE 2 - PDF
+
+Implementar:
+
+- upload
+- validacion
+- almacenamiento
+- extraccion
+- database
+
+Prueba:
+
+sample_course.pdf
+-> upload
+-> extract
+-> database
+
+
+FASE 3 - ANALYZER AGENT
+
+Implementar:
+
+DocumentAnalyzerAgent
+
+Usar OpenAI.
+
+Implementar:
+
+- prompt
+- schema
+- service
+- tests
+- logs
+
+
+FASE 4 - PEDAGOGICAL AGENT
+
+Implementar:
+
+PedagogicalAgent
+
+Generar:
+
+- objetivos
+- estructura
+- ejemplos
+- duracion
+
+
+FASE 5 - SCRIPT AGENT
+
+Implementar:
+
+ScriptAgent
+
+Generar:
+
+- escenas
+- narracion
+- visuales
+- texto en pantalla
+
+
+FASE 6 - FRONTEND
+
+Implementar:
+
+- dashboard
+- upload
+- analysis
+- script
+- approval
+
+
+FASE 7 - HEYGEN
+
+Implementar:
+
+HeyGenService
+MockVideoProvider
+HeyGenVideoAgentProvider
+HeyGenTemplateProvider
+
+Utilizar documentacion oficial actual.
+
+
+FASE 8 - WORKFLOW
+
+Integrar:
+
+PDF
+-> Analyzer
+-> Pedagogical
+-> Script
+-> Approval
+-> Video
+-> Webhook
+-> QA
+
+
+FASE 9 - QA
+
+Implementar:
+
+QAAgent
+
+Validar:
+
+- contenido
+- objetivos
+- cobertura
+- coherencia
+- calidad
+
+
+FASE 10 - TESTING
+
+Implementar:
+
+- unit
+- integration
+- E2E
+- mock
+- external integration
+
+Ejecutar todos.
+
+Corregir errores.
+
+
+FASE 11 - DOCUMENTATION
+
+Completar:
+
+- README
+- Architecture
+- API
+- Agents
+- Testing
+- Deployment
+- Troubleshooting
+
+
+============================================================
+43. CRITERIOS DE ACEPTACION
+============================================================
+
+El proyecto solamente se considera terminado cuando:
+
+[ ] Frontend funciona.
+[ ] Backend funciona.
+[ ] PostgreSQL funciona.
+[ ] Redis funciona.
+[ ] Docker funciona.
+[ ] PDF puede cargarse.
+[ ] PDF puede procesarse.
+[ ] Texto puede extraerse.
+[ ] Analyzer funciona.
+[ ] Pedagogical Agent funciona.
+[ ] Script Agent funciona.
+[ ] Guion puede visualizarse.
+[ ] Usuario puede aprobar el guion.
+[ ] HeyGen esta integrado.
+[ ] Existe Mock Provider.
+[ ] Video puede generarse.
+[ ] Webhook funciona.
+[ ] Estado se actualiza.
+[ ] QA Agent funciona.
+[ ] Video puede reproducirse.
+[ ] Unit tests pasan.
+[ ] Integration tests pasan.
+[ ] E2E tests pasan.
+[ ] README esta completo.
+[ ] Documentacion tecnica esta completa.
+[ ] No existen API keys hardcodeadas.
+[ ] No existen endpoints inventados.
+[ ] No existen errores criticos conocidos.
+
+
+============================================================
+44. COMANDOS ESPERADOS
+============================================================
+
+Crear comandos:
+
+make install
+make dev
+make test
+make test-unit
+make test-integration
+make test-e2e
+make lint
+make format
+make build
+make clean
+
+Tambien permitir:
+
+docker compose up --build
+
+
+============================================================
+45. REGLA FUNDAMENTAL PARA EL AGENTE DE DESARROLLO
+============================================================
+
+Antes de implementar una integracion externa:
+
+1. Consultar documentacion oficial actual.
+2. Verificar endpoint.
+3. Verificar autenticacion.
+4. Verificar request.
+5. Verificar response.
+6. Verificar errores.
+7. Verificar webhook.
+8. Implementar.
+9. Crear test.
+10. Documentar.
+
+No asumir que una API funciona de determinada forma.
+
+
+============================================================
+46. REGLA PARA OPENAI
+============================================================
+
+No depender de texto libre cuando la salida deba ser procesada por codigo.
+
+Utilizar schemas estructurados.
+
+Flujo:
+
+LLM
+-> Structured Output
+-> Pydantic
+-> Database
+
+Evitar:
+
+LLM
+-> texto arbitrario
+-> parseo manual fragil
+
+
+============================================================
+47. REGLA PARA HEYGEN
+============================================================
+
+El frontend nunca debe contener:
+
+HEYGEN_API_KEY
+
+Flujo:
+
+Frontend
+-> FastAPI
+-> HeyGenService
+-> HeyGen API
+
+
+============================================================
+48. RESULTADO ESPERADO
+============================================================
+
+El producto final debe permitir:
+
+1. Usuario abre aplicacion.
+2. Sube PDF.
+3. Sistema procesa PDF.
+4. Identifica tema.
+5. Identifica objetivos.
+6. Identifica conceptos.
+7. Disena estructura pedagogica.
+8. Genera guion.
+9. Usuario revisa.
+10. Usuario aprueba.
+11. Sistema genera video.
+12. HeyGen procesa.
+13. Webhook informa resultado.
+14. Sistema ejecuta QA.
+15. Video aprobado.
+16. Video aparece en frontend.
+
+
+============================================================
+49. ENTREGABLES FINALES
+============================================================
+
+El proyecto debe entregar:
+
+- Codigo fuente.
+- Frontend.
+- Backend.
+- API REST.
+- Base de datos.
+- Migraciones.
+- Agentes.
+- Prompts.
+- Integracion OpenAI.
+- Integracion HeyGen.
+- Webhooks.
+- Mock provider.
+- Docker.
+- Tests.
+- Fixtures.
+- Documentacion.
+- Diagramas.
+- README.
+- .env.example.
+- Makefile.
+
+
+============================================================
+50. INSTRUCCION FINAL PARA TRAE
+============================================================
+
+Trabaja de forma incremental.
+
+NO crear todo el proyecto de una sola vez sin validar.
+
+Para cada fase:
+
+1. Implementar.
+2. Ejecutar.
+3. Probar.
+4. Corregir errores.
+5. Documentar.
+6. Verificar criterios de aceptacion.
+7. Mostrar que archivos fueron creados o modificados.
+8. Continuar con la siguiente fase solamente despues de validar la anterior.
+
+Al finalizar cada fase generar un resumen:
+
+FASE:
+ESTADO:
+ARCHIVOS CREADOS:
+ARCHIVOS MODIFICADOS:
+FUNCIONALIDADES:
+TESTS EJECUTADOS:
+RESULTADOS:
+ERRORES:
+PENDIENTES:
+
+No declarar una fase como completada si existen errores criticos.
+
+Al finalizar todo el proyecto ejecutar:
+
+make test
+make lint
+make build
+docker compose up --build
+
+Realizar una prueba End-to-End completa utilizando:
+
+tests/fixtures/sample_course.pdf
+
+El resultado final debe demostrar:
+
+PDF
+-> Analisis
+-> Diseno pedagogico
+-> Guion
+-> Aprobacion
+-> HeyGen
+-> Webhook
+-> Video
+-> QA
+-> Video final
+
+El sistema debe quedar documentado y reproducible desde cero siguiendo unicamente el README.
+
+
+============================================================
+51. PROMPT PARA INICIAR EL PROYECTO EN TRAE
+============================================================
+
+Utilizar el siguiente mensaje despues de crear PROJECT_SPECIFICATION.txt:
+
+Lee PROJECT_SPECIFICATION.txt completamente.
+
+Actua como arquitecto de software senior y desarrollador Full Stack.
+
+No implementes todo de una vez.
+
+Primero analiza la especificacion y crea un PLAN.md con:
+
+1. Arquitectura.
+2. Dependencias.
+3. Estructura de carpetas.
+4. Base de datos.
+5. API.
+6. Agentes.
+7. Integraciones.
+8. Testing.
+9. Documentacion.
+10. Fases de implementacion.
+
+Despues implementa UNICAMENTE la FASE 1.
+
+No avances a la FASE 2.
+
+Al terminar la FASE 1:
+
+- Ejecuta los tests.
+- Ejecuta Docker.
+- Verifica PostgreSQL.
+- Verifica Redis.
+- Verifica el backend.
+- Verifica el frontend.
+- Verifica GET /api/v1/health.
+- Corrige cualquier error.
+- Actualiza README.
+- Actualiza documentacion.
+- Indica exactamente que archivos fueron creados.
+- Indica exactamente que archivos fueron modificados.
+- Indica comandos ejecutados.
+- Indica resultados de tests.
+- Indica errores pendientes.
+
+No continues hasta que la FASE 1 este funcional.
+
+Despues de mi aprobacion continuaremos con la siguiente fase.
+
+
+============================================================
+52. REGLA DE CONTINUIDAD
+============================================================
+
+En cada nueva sesion de trabajo:
+
+1. Leer PROJECT_SPECIFICATION.txt.
+2. Leer README.md.
+3. Leer PLAN.md si existe.
+4. Revisar git status.
+5. Revisar la ultima fase completada.
+6. Ejecutar tests existentes.
+7. No romper funcionalidades anteriores.
+8. Continuar desde la ultima fase validada.
+
+Nunca asumir que una funcionalidad esta terminada solamente porque existe el codigo.
+
+
+============================================================
+FIN DE LA ESPECIFICACION
+============================================================
