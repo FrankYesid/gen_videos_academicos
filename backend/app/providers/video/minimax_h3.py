@@ -195,6 +195,18 @@ class MockMiniMaxH3Provider(VideoGenerationProvider):
     def __init__(self) -> None:
         logger.warning("Using MockMiniMaxH3Provider - no real API calls will be made")
 
+    def generate_sync(
+        self,
+        prompt: str,
+        duration: int = 5,
+        resolution: str = "480p",
+        aspect_ratio: str = "16:9",
+        seed: int | None = None,
+        **kwargs: Any,
+    ) -> VideoGenerationResult:
+        """Synchronous version for Celery tasks."""
+        return self.generate(prompt, duration, resolution, aspect_ratio, seed, **kwargs)
+
     async def generate(
         self,
         prompt: str,

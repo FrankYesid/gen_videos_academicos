@@ -156,12 +156,34 @@ def generate_scene_video_task(
         
         script_service = get_script_service()
         
-        # Generate video for this scene
-        result = await script_service.generate_scene_video(
-            scene_prompt=scene_data,
-            resolution=resolution,
-            aspect_ratio=aspect_ratio,
-        )
+        # Generate video for this scene (use sync method for Celery)
+        video_provider = script_service.video_provider
+        if hasattr(video_provider, 'generate_sync'):
+            video_result = video_provider.generate_sync(
+                prompt=scene_data["prompt"],
+                duration=scene_data["duration"],
+                resolution=resolution,
+                aspect_ratio=aspect_ratio,
+            )
+            
+            result = {
+                "scene_number": scene_data["scene_number"],
+                "title": scene_data["title"],
+                "success": video_result.success,
+                "video_url": video_result.video_url,
+                "thumbnail_url": video_result.thumbnail_url,
+                "duration": video_result.duration,
+                "provider_video_id": video_result.provider_video_id,
+                "error_message": video_result.error_message,
+                "metadata": video_result.metadata,
+            }
+        else:
+            import asyncio
+            result = asyncio.run(script_service.generate_scene_video(
+                scene_prompt=scene_data,
+                resolution=resolution,
+                aspect_ratio=aspect_ratio,
+            ))
         
         if result["success"]:
             logger.info(
@@ -401,7 +423,12 @@ def security_check_task(
         from app.providers.security.prompt_guard import get_prompt_guard
         
         security_service = get_prompt_guard()
-        result = security_service.analyze(text)
+        # Use synchronous method for Celery task
+        if hasattr(security_service, 'analyze_sync'):
+            result = security_service.analyze_sync(text)
+        else:
+            import asyncio
+            result = asyncio.run(security_service.analyze(text))
         
         logger.info(
             "security_check_task_completed",

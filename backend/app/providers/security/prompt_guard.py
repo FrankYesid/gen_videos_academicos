@@ -93,9 +93,19 @@ class GroqPromptGuard(PromptSecurityService):
             logger.error("prompt_guard_analysis_failed", error=str(exc))
             raise AIServiceError(f"Prompt Guard analysis failed: {exc}") from exc
 
+    def analyze_sync(self, text: str) -> SecurityAnalysisResult:
+        """Synchronous version of analyze for Celery tasks."""
+        import asyncio
+        return asyncio.run(self.analyze(text))
+
     async def analyze(self, text: str) -> SecurityAnalysisResult:
         """Analyze text for security threats."""
         return await self.analyze_chunks(text, chunk_size=self.chunk_size)
+
+    def analyze_chunks_sync(self, text: str, chunk_size: int = 512) -> SecurityAnalysisResult:
+        """Synchronous version of analyze_chunks for Celery tasks."""
+        import asyncio
+        return asyncio.run(self.analyze_chunks(text, chunk_size))
 
     async def analyze_chunks(self, text: str, chunk_size: int = 512) -> SecurityAnalysisResult:
         """Analyze text in chunks for better handling of long documents."""
@@ -178,6 +188,10 @@ class MockPromptGuard(PromptSecurityService):
     def __init__(self) -> None:
         logger.warning("Using MockPromptGuard - no real security analysis will be performed")
 
+    def analyze_sync(self, text: str) -> SecurityAnalysisResult:
+        """Synchronous version for Celery tasks."""
+        return self.analyze(text)
+
     async def analyze(self, text: str) -> SecurityAnalysisResult:
         """Return mock safe result."""
         return SecurityAnalysisResult(
@@ -187,6 +201,10 @@ class MockPromptGuard(PromptSecurityService):
             reason="Mock security check - always safe",
             chunks_checked=1,
         )
+
+    def analyze_chunks_sync(self, text: str, chunk_size: int = 512) -> SecurityAnalysisResult:
+        """Synchronous version for Celery tasks."""
+        return self.analyze_chunks(text, chunk_size)
 
     async def analyze_chunks(self, text: str, chunk_size: int = 512) -> SecurityAnalysisResult:
         """Return mock safe result for chunks."""

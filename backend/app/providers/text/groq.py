@@ -168,6 +168,17 @@ class MockGroqProvider(TextGenerationProvider):
     def __init__(self) -> None:
         logger.warning("Using MockGroqProvider - no real API calls will be made")
 
+    def generate_sync(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float = 0.2,
+        **kwargs: Any,
+    ) -> str:
+        """Synchronous version for Celery tasks."""
+        return self.generate(prompt, system_prompt, max_tokens, temperature, **kwargs)
+
     async def generate(
         self,
         prompt: str,
@@ -178,6 +189,18 @@ class MockGroqProvider(TextGenerationProvider):
     ) -> str:
         """Return mock text response."""
         return "This is a mock response from the Groq provider."
+
+    def generate_structured_sync(
+        self,
+        prompt: str,
+        response_schema: type[BaseModel],
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float = 0.2,
+        **kwargs: Any,
+    ) -> BaseModel:
+        """Synchronous version for Celery tasks."""
+        return self.generate_structured(prompt, response_schema, system_prompt, max_tokens, temperature, **kwargs)
 
     async def generate_structured(
         self,
