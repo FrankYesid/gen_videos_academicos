@@ -5,6 +5,7 @@
 [![Phase](https://img.shields.io/badge/Phase-FASE%201-Foundation-blue)](#)
 [![Status](https://img.shields.io/badge/Status-WIP-orange)](#)
 [![License](https://img.shields.io/badge/License-MIT-green)](#)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/FrankYesid/gen_videos_academicos)
 
 ---
 
