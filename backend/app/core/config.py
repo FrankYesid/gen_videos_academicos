@@ -28,12 +28,20 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = Field(default="redis://redis:6379/0")
 
-    # OpenAI
-    OPENAI_API_KEY: Optional[str] = Field(default=None)
-    OPENAI_MODEL: str = Field(default="gpt-4o-mini")
-    OPENAI_TEMPERATURE: float = Field(default=0.2)
-    OPENAI_TIMEOUT: int = Field(default=60)
-    OPENAI_MAX_RETRIES: int = Field(default=3)
+    # Groq (Text Generation)
+    GROQ_API_KEY: Optional[str] = Field(default=None)
+    GROQ_MODEL: str = Field(default="llama-3.3-70b-versatile")
+    GROQ_TEMPERATURE: float = Field(default=0.2)
+    GROQ_TIMEOUT: int = Field(default=60)
+    GROQ_MAX_RETRIES: int = Field(default=3)
+
+    # Prompt Guard 2 (Security)
+    GROQ_PROMPT_GUARD_MODEL: str = Field(default="meta-llama/llama-prompt-guard-2-86m")
+
+    # Hugging Face (Video Generation)
+    HF_TOKEN: Optional[str] = Field(default=None)
+    HF_VIDEO_PROVIDER: str = Field(default="wavespeed")
+    HF_VIDEO_MODEL: str = Field(default="larryvrh/MiniMax-H3-Turbo-Lora")
 
     # HeyGen
     HEYGEN_MODE: str = Field(default="mock")

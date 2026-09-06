@@ -44,8 +44,17 @@ services:
       - APP_ENV=${APP_ENV:-development}
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/course_generator}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      # Groq (Text Generation)
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - GROQ_TEMPERATURE=${GROQ_TEMPERATURE:-0.2}
+      # Prompt Guard 2 (Security)
+      - GROQ_PROMPT_GUARD_MODEL=${GROQ_PROMPT_GUARD_MODEL:-meta-llama/llama-prompt-guard-2-86m}
+      # Hugging Face (Video Generation)
+      - HF_TOKEN=${HF_TOKEN:-}
+      - HF_VIDEO_PROVIDER=${HF_VIDEO_PROVIDER:-wavespeed}
+      - HF_VIDEO_MODEL=${HF_VIDEO_MODEL:-larryvrh/MiniMax-H3-Turbo-Lora}
+      # Legacy HeyGen (kept for backwards compatibility, but not used in new architecture)
       - HEYGEN_MODE=${HEYGEN_MODE:-mock}
       - HEYGEN_API_KEY=${HEYGEN_API_KEY:-}
       - HEYGEN_BASE_URL=${HEYGEN_BASE_URL:-https://api.heygen.com}

@@ -55,7 +55,7 @@ Provide a comprehensive analysis following the guidelines in the system prompt.
         """Return the AnalysisOutput schema for structured response."""
         return AnalysisOutput
 
-    def analyze_document(
+    async def analyze_document(
         self,
         db: Session,
         course_id: uuid.UUID,
@@ -70,7 +70,7 @@ Provide a comprehensive analysis following the guidelines in the system prompt.
             "page_count": page_count,
         }
         
-        return self.execute(
+        return await self.execute(
             db=db,
             course_id=course_id,
             input_data=input_data,

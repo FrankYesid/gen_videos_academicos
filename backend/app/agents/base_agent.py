@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.logging import get_logger
 from app.core.security import utcnow
 from app.models.agent_run import AgentRun, AgentRunStatus
-from app.services.openai_service import get_openai_service
+from app.services.content_service import get_content_service
 
 logger = get_logger(__name__)
 
@@ -24,7 +24,7 @@ class BaseAgent(ABC):
     def __init__(self, name: str, prompt_version: str = "1.0") -> None:
         self.name = name
         self.prompt_version = prompt_version
-        self.openai_service = get_openai_service()
+        self.content_service = get_content_service()
 
     @abstractmethod
     def get_system_prompt(self) -> str:
@@ -41,7 +41,7 @@ class BaseAgent(ABC):
         """Return the Pydantic schema for structured output."""
         pass
 
-    def execute(
+    async def execute(
         self,
         db: Session,
         course_id: uuid.UUID,
@@ -59,19 +59,22 @@ class BaseAgent(ABC):
                 run_id=str(agent_run.id),
             )
             
-            # Build messages
-            messages = [
-                {"role": "system", "content": self.get_system_prompt()},
-                {"role": "user", "content": self.get_user_prompt(input_data)},
-            ]
+            # Build prompt
+            system_prompt = self.get_system_prompt()
+            user_prompt = self.get_user_prompt(input_data)
             
-            # Execute structured completion
+            # Execute structured completion with security check
             response_schema = self.get_response_schema()
-            result = self.openai_service.structured_completion(
-                messages=messages,
+            result, security_result = await self.content_service.generate_content(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
                 response_schema=response_schema,
                 max_tokens=max_tokens,
+                require_security_check=True,
             )
+            
+            if result is None:
+                raise Exception(f"Content generation blocked by security: {security_result.reason}")
             
             # Update agent run with success
             self._update_agent_run_success(db, agent_run, result)

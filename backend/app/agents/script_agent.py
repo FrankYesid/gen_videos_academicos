@@ -112,7 +112,7 @@ Ensure smooth transitions between scenes and maintain engagement throughout.
         """Return the ScriptOutput schema for structured response."""
         return ScriptOutput
 
-    def generate_script(
+    async def generate_script(
         self,
         db: Session,
         course_id: uuid.UUID,
@@ -125,7 +125,7 @@ Ensure smooth transitions between scenes and maintain engagement throughout.
             "analysis": analysis_data,
         }
         
-        return self.execute(
+        return await self.execute(
             db=db,
             course_id=course_id,
             input_data=input_data,
