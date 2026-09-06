@@ -41,6 +41,22 @@ class GroqProvider(TextGenerationProvider):
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
     )
+    def generate_sync(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float = 0.2,
+        **kwargs: Any,
+    ) -> str:
+        """Synchronous version of generate for Celery tasks."""
+        import asyncio
+        return asyncio.run(self.generate(prompt, system_prompt, max_tokens, temperature, **kwargs))
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+    )
     async def generate(
         self,
         prompt: str,
@@ -71,6 +87,23 @@ class GroqProvider(TextGenerationProvider):
         except Exception as exc:
             logger.error("groq_generation_failed", error=str(exc))
             raise AIServiceError(f"Groq API error: {exc}") from exc
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+    )
+    def generate_structured_sync(
+        self,
+        prompt: str,
+        response_schema: type[BaseModel],
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float = 0.2,
+        **kwargs: Any,
+    ) -> BaseModel:
+        """Synchronous version of generate_structured for Celery tasks."""
+        import asyncio
+        return asyncio.run(self.generate_structured(prompt, response_schema, system_prompt, max_tokens, temperature, **kwargs))
 
     @retry(
         stop=stop_after_attempt(3),
