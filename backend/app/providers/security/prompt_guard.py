@@ -187,7 +187,7 @@ class MockPromptGuard(PromptSecurityService):
     """Mock Prompt Guard for testing without API calls."""
 
     def __init__(self) -> None:
-        logger.warning("Using MockPromptGuard - no real security analysis will be performed")
+        pass  # Mock provider initialized
 
     def analyze_sync(self, text: str) -> SecurityAnalysisResult:
         """Synchronous version for Celery tasks."""
@@ -219,6 +219,5 @@ class MockPromptGuard(PromptSecurityService):
 def get_prompt_guard() -> PromptSecurityService:
     """Factory function to get the appropriate Prompt Guard service."""
     if not GroqPromptGuard.is_configured():
-        logger.warning("Prompt Guard not configured, using mock provider")
         return MockPromptGuard()
     return GroqPromptGuard()

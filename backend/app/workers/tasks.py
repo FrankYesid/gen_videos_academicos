@@ -31,12 +31,6 @@ def generate_script_task(
     
     db = SessionLocal()
     try:
-        logger.info(
-            "generate_script_task_started",
-            course_id=course_id,
-            task_id=self.request.id,
-        )
-        
         content_service = get_content_service()
         
         system_prompt = """
@@ -86,11 +80,6 @@ def generate_script_task(
             ))
         
         if script is None:
-            logger.error(
-                "generate_script_task_blocked",
-                course_id=course_id,
-                reason=security_result.reason,
-            )
             return {
                 "success": False,
                 "error": f"Content generation blocked: {security_result.reason}",
@@ -101,14 +90,6 @@ def generate_script_task(
                     "reason": security_result.reason,
                 }
             }
-        
-        logger.info(
-            "generate_script_task_completed",
-            course_id=course_id,
-            script_title=script.title,
-            scenes_count=len(script.scenes),
-            security_score=security_result.security_score,
-        )
         
         return {
             "success": True,
@@ -121,11 +102,6 @@ def generate_script_task(
         }
         
     except Exception as exc:
-        logger.error(
-            "generate_script_task_failed",
-            course_id=course_id,
-            error=str(exc),
-        )
         return {
             "success": False,
             "error": str(exc),
@@ -147,13 +123,6 @@ def generate_scene_video_task(
     
     db = SessionLocal()
     try:
-        logger.info(
-            "generate_scene_video_task_started",
-            course_id=course_id,
-            scene_number=scene_data.get("scene_number"),
-            task_id=self.request.id,
-        )
-        
         script_service = get_script_service()
         
         # Generate video for this scene (use sync method for Celery)
@@ -185,31 +154,9 @@ def generate_scene_video_task(
                 aspect_ratio=aspect_ratio,
             ))
         
-        if result["success"]:
-            logger.info(
-                "generate_scene_video_task_completed",
-                course_id=course_id,
-                scene_number=scene_data.get("scene_number"),
-                video_url=result["video_url"],
-                duration=result["duration"],
-            )
-        else:
-            logger.error(
-                "generate_scene_video_task_failed",
-                course_id=course_id,
-                scene_number=scene_data.get("scene_number"),
-                error=result.get("error_message"),
-            )
-        
         return result
         
     except Exception as exc:
-        logger.error(
-            "generate_scene_video_task_failed",
-            course_id=course_id,
-            scene_number=scene_data.get("scene_number"),
-            error=str(exc),
-        )
         return {
             "success": False,
             "error": str(exc),
@@ -232,13 +179,6 @@ def compose_video_task(
     
     db = SessionLocal()
     try:
-        logger.info(
-            "compose_video_task_started",
-            course_id=course_id,
-            video_count=len(video_urls),
-            task_id=self.request.id,
-        )
-        
         video_composer = get_video_composer()
         
         result = video_composer.concatenate_videos(
@@ -249,28 +189,9 @@ def compose_video_task(
             normalize_audio=True,
         )
         
-        if result["success"]:
-            logger.info(
-                "compose_video_task_completed",
-                course_id=course_id,
-                output_path=result["output_path"],
-                duration=result["duration"],
-            )
-        else:
-            logger.error(
-                "compose_video_task_failed",
-                course_id=course_id,
-                error=result.get("error_message"),
-            )
-        
         return result
         
     except Exception as exc:
-        logger.error(
-            "compose_video_task_failed",
-            course_id=course_id,
-            error=str(exc),
-        )
         return {
             "success": False,
             "error": str(exc),
@@ -292,12 +213,6 @@ def generate_complete_video_task(
     
     db = SessionLocal()
     try:
-        logger.info(
-            "generate_complete_video_task_started",
-            course_id=course_id,
-            task_id=self.request.id,
-        )
-        
         # Convert script data to ScriptOutput
         from app.schemas.script import ScriptOutput
         script = ScriptOutput.model_validate(script_data)
@@ -307,12 +222,6 @@ def generate_complete_video_task(
         scene_prompts = script_service.process_script_for_video(
             script=script,
             topic=topic,
-        )
-        
-        logger.info(
-            "generate_complete_video_task_scenes_processed",
-            course_id=course_id,
-            scenes_count=len(scene_prompts),
         )
         
         # Generate videos for each scene
@@ -377,13 +286,6 @@ def generate_complete_video_task(
             # Single scene, no composition needed
             final_video_url = video_urls[0]
         
-        logger.info(
-            "generate_complete_video_task_completed",
-            course_id=course_id,
-            final_video_url=final_video_url,
-            scenes_count=len(scene_prompts),
-        )
-        
         return {
             "success": True,
             "final_video_url": final_video_url,
@@ -392,11 +294,6 @@ def generate_complete_video_task(
         }
         
     except Exception as exc:
-        logger.error(
-            "generate_complete_video_task_failed",
-            course_id=course_id,
-            error=str(exc),
-        )
         return {
             "success": False,
             "error": str(exc),
@@ -414,12 +311,6 @@ def security_check_task(
     """Perform security check on text using Prompt Guard 2."""
     
     try:
-        logger.info(
-            "security_check_task_started",
-            course_id=course_id,
-            task_id=self.request.id,
-        )
-        
         from app.providers.security.prompt_guard import get_prompt_guard
         
         security_service = get_prompt_guard()
@@ -429,14 +320,6 @@ def security_check_task(
         else:
             import asyncio
             result = asyncio.run(security_service.analyze(text))
-        
-        logger.info(
-            "security_check_task_completed",
-            course_id=course_id,
-            is_safe=result.is_safe,
-            security_score=result.security_score,
-            blocked=result.blocked,
-        )
         
         return {
             "success": True,
@@ -448,11 +331,6 @@ def security_check_task(
         }
         
     except Exception as exc:
-        logger.error(
-            "security_check_task_failed",
-            course_id=course_id,
-            error=str(exc),
-        )
         return {
             "success": False,
             "error": str(exc),

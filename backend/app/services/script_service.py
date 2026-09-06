@@ -52,12 +52,6 @@ Educational purpose: {scene.educational_purpose}
                 "original_scene": scene,
             })
         
-        logger.info(
-            "script_processed_for_video",
-            total_scenes=len(scene_prompts),
-            total_duration=sum(s["duration"] for s in scene_prompts),
-        )
-        
         return scene_prompts
 
     async def generate_scene_video(
@@ -76,13 +70,6 @@ Educational purpose: {scene.educational_purpose}
                 aspect_ratio=aspect_ratio,
             )
             
-            logger.info(
-                "scene_video_generated",
-                scene_number=scene_prompt["scene_number"],
-                success=result.success,
-                duration=result.duration,
-            )
-            
             return {
                 "scene_number": scene_prompt["scene_number"],
                 "title": scene_prompt["title"],
@@ -96,11 +83,6 @@ Educational purpose: {scene.educational_purpose}
             }
             
         except Exception as exc:
-            logger.error(
-                "scene_video_generation_failed",
-                scene_number=scene_prompt["scene_number"],
-                error=str(exc),
-            )
             return {
                 "scene_number": scene_prompt["scene_number"],
                 "title": scene_prompt["title"],

@@ -36,11 +36,6 @@ class ContentService:
             security_result = await self.security_service.analyze(prompt)
             
             if security_result.blocked:
-                logger.warning(
-                    "content_generation_blocked",
-                    reason=security_result.reason,
-                    security_score=security_result.security_score,
-                )
                 return None, security_result
         else:
             # Skip security check
@@ -70,16 +65,9 @@ class ContentService:
                     temperature=temperature,
                 )
 
-            logger.info(
-                "content_generation_success",
-                has_schema=response_schema is not None,
-                security_score=security_result.security_score,
-            )
-
             return content, security_result
 
         except Exception as exc:
-            logger.error("content_generation_failed", error=str(exc))
             raise
 
 

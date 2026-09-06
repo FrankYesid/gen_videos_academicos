@@ -194,7 +194,7 @@ class MockMiniMaxH3Provider(VideoGenerationProvider):
     """Mock MiniMax H3 provider for testing without API calls."""
 
     def __init__(self) -> None:
-        logger.warning("Using MockMiniMaxH3Provider - no real API calls will be made")
+        pass  # Mock provider initialized
 
     def _build_educational_prompt(
         self,
@@ -251,13 +251,6 @@ Audio:
     ) -> VideoGenerationResult:
         """Return mock video generation result."""
         fake_video_id = f"mock_minimax_{uuid.uuid4().hex}"
-        
-        logger.info(
-            "mock_minimax_h3_generation",
-            provider_video_id=fake_video_id,
-            duration=duration,
-            resolution=resolution,
-        )
 
         return VideoGenerationResult(
             success=True,
@@ -294,6 +287,5 @@ Audio:
 def get_video_provider() -> VideoGenerationProvider:
     """Factory function to get the appropriate video provider."""
     if not MiniMaxH3Provider.is_configured():
-        logger.warning("MiniMax H3 not configured, using mock provider")
         return MockMiniMaxH3Provider()
     return MiniMaxH3Provider()

@@ -167,7 +167,7 @@ class MockGroqProvider(TextGenerationProvider):
     """Mock Groq provider for testing without API calls."""
 
     def __init__(self) -> None:
-        logger.warning("Using MockGroqProvider - no real API calls will be made")
+        pass  # Mock provider initialized
 
     def generate_sync(
         self,
@@ -365,6 +365,5 @@ class MockGroqProvider(TextGenerationProvider):
 def get_groq_provider() -> TextGenerationProvider:
     """Factory function to get the appropriate Groq provider."""
     if not GroqProvider.is_configured():
-        logger.warning("Groq not configured, using mock provider")
         return MockGroqProvider()
     return GroqProvider()

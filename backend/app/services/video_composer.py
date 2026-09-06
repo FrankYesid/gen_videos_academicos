@@ -46,11 +46,9 @@ class VideoComposer:
             with open(output_path, "wb") as f:
                 f.write(response.content)
             
-            logger.info("video_downloaded", url=url, output_path=str(output_path))
             return True
             
         except Exception as exc:
-            logger.error("video_download_failed", url=url, error=str(exc))
             return False
 
     def _create_concat_list(self, video_paths: list[Path]) -> Path:
@@ -76,14 +74,12 @@ class VideoComposer:
         """Concatenate multiple videos into a single video file."""
         
         if not self._check_ffmpeg_installed():
-            logger.error("ffmpeg_not_installed")
             return {
                 "success": False,
                 "error_message": "FFmpeg is not installed or not accessible",
             }
 
         if not video_urls:
-            logger.error("no_videos_to_concatenate")
             return {
                 "success": False,
                 "error_message": "No videos provided for concatenation",
@@ -146,13 +142,6 @@ class VideoComposer:
                 "-y",  # Overwrite output file if exists
             ])
 
-            logger.info(
-                "ffmpeg_concatenate_start",
-                input_videos=len(video_urls),
-                output_path=str(output_path),
-                resolution=resolution,
-            )
-
             # Run FFmpeg
             result = subprocess.run(
                 cmd,
@@ -162,11 +151,6 @@ class VideoComposer:
             )
 
             if result.returncode != 0:
-                logger.error(
-                    "ffmpeg_concatenate_failed",
-                    returncode=result.returncode,
-                    stderr=result.stderr,
-                )
                 return {
                     "success": False,
                     "error_message": f"FFmpeg failed: {result.stderr}",
@@ -195,12 +179,6 @@ class VideoComposer:
                 except ValueError:
                     pass
 
-            logger.info(
-                "ffmpeg_concatenate_success",
-                output_path=str(output_path),
-                duration=duration,
-            )
-
             # Clean up temporary files
             for video_path in video_paths:
                 try:
@@ -222,13 +200,11 @@ class VideoComposer:
             }
 
         except subprocess.TimeoutExpired:
-            logger.error("ffmpeg_timeout")
             return {
                 "success": False,
                 "error_message": "FFmpeg operation timed out",
             }
         except Exception as exc:
-            logger.error("video_composition_failed", error=str(exc))
             return {
                 "success": False,
                 "error_message": f"Video composition failed: {exc}",
