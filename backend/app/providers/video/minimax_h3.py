@@ -82,6 +82,23 @@ Audio:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
     )
+    def generate_sync(
+        self,
+        prompt: str,
+        duration: int = 5,
+        resolution: str = "480p",
+        aspect_ratio: str = "16:9",
+        seed: int | None = None,
+        **kwargs: Any,
+    ) -> VideoGenerationResult:
+        """Synchronous version of generate for Celery tasks."""
+        import asyncio
+        return asyncio.run(self.generate(prompt, duration, resolution, aspect_ratio, seed, **kwargs))
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+    )
     async def generate(
         self,
         prompt: str,

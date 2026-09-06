@@ -60,12 +60,30 @@ def generate_script_task(
         
         # Generate script with security check
         from app.schemas.script import ScriptOutput
-        script, security_result = content_service.generate_content(
-            prompt=user_prompt,
-            system_prompt=system_prompt,
-            response_schema=ScriptOutput,
-            require_security_check=True,
-        )
+        
+        # Use synchronous method for Celery task
+        text_provider = content_service.text_provider
+        if hasattr(text_provider, 'generate_structured_sync'):
+            script = text_provider.generate_structured_sync(
+                prompt=user_prompt,
+                response_schema=ScriptOutput,
+                system_prompt=system_prompt,
+            )
+            # Security check separately
+            security_service = content_service.security_service
+            if hasattr(security_service, 'analyze_sync'):
+                security_result = security_service.analyze_sync(user_prompt)
+            else:
+                import asyncio
+                security_result = asyncio.run(security_service.analyze(user_prompt))
+        else:
+            import asyncio
+            script, security_result = asyncio.run(content_service.generate_content(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                response_schema=ScriptOutput,
+                require_security_check=True,
+            ))
         
         if script is None:
             logger.error(

@@ -43,6 +43,15 @@ class GroqPromptGuard(PromptSecurityService):
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
     )
+    def _analyze_chunk_sync(self, chunk: str) -> tuple[bool, float, str | None]:
+        """Synchronous version of _analyze_chunk for Celery tasks."""
+        import asyncio
+        return asyncio.run(self._analyze_chunk(chunk))
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+    )
     async def _analyze_chunk(self, chunk: str) -> tuple[bool, float, str | None]:
         """Analyze a single chunk of text for security threats."""
         try:
