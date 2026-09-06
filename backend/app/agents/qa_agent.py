@@ -96,7 +96,7 @@ Provide a detailed QA review following the JSON structure, including:
         """Return the QAOutput schema for structured response."""
         return QAOutput
 
-    def run_qa(
+    async def run_qa(
         self,
         db: Session,
         course_id: uuid.UUID,
@@ -115,7 +115,7 @@ Provide a detailed QA review following the JSON structure, including:
             "qa_min_score": qa_min_score,
         }
 
-        return self.execute(
+        return await self.execute(
             db=db,
             course_id=course_id,
             input_data=input_data,

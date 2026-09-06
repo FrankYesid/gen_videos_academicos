@@ -64,7 +64,7 @@ class Settings(BaseSettings):
 
     # QA
     QA_MIN_SCORE: int = Field(default=80)
-    QA_MODEL: str = Field(default="gpt-4o-mini")
+    QA_MODEL: str = Field(default="llama-3.3-70b-versatile")
 
     # Prompt Versions
     ANALYZER_PROMPT_VERSION: str = Field(default="1.0")
