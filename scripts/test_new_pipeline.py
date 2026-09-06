@@ -40,7 +40,7 @@ async def test_single_scene_pipeline():
     únicos resultados posibles.
     """
     
-    print("\n📄 INPUT TEXT:")
+    print("\nINPUT TEXT:")
     print(input_text.strip())
     
     # Step 1: Security Check with Prompt Guard 2
@@ -51,17 +51,17 @@ async def test_single_scene_pipeline():
     security_service = get_prompt_guard()
     security_result = await security_service.analyze(input_text)
     
-    print(f"✓ Security analysis completed")
+    print(f"[OK] Security analysis completed")
     print(f"  - Is Safe: {security_result.is_safe}")
     print(f"  - Security Score: {security_result.security_score:.2f}")
     print(f"  - Blocked: {security_result.blocked}")
     print(f"  - Chunks Checked: {security_result.chunks_checked}")
     
     if security_result.blocked:
-        print(f"❌ CONTENT BLOCKED: {security_result.reason}")
+        print(f"[ERROR] CONTENT BLOCKED: {security_result.reason}")
         return False
     
-    print("✓ Security check passed")
+    print("[OK] Security check passed")
     
     # Step 2: Generate Script with Groq
     print("\n" + "=" * 80)
@@ -88,7 +88,7 @@ async def test_single_scene_pipeline():
     - Duration: exactly 5 seconds
     """
     
-    print("📝 Generating script with Groq...")
+    print("[INFO] Generating script with Groq...")
     
     script, security_result = await content_service.generate_content(
         prompt=user_prompt,
@@ -98,10 +98,10 @@ async def test_single_scene_pipeline():
     )
     
     if script is None:
-        print(f"❌ Script generation failed: {security_result.reason}")
+        print(f"[ERROR] Script generation failed: {security_result.reason}")
         return False
     
-    print(f"✓ Script generated successfully")
+    print(f"[OK] Script generated successfully")
     print(f"  - Title: {script.title}")
     print(f"  - Scenes: {len(script.scenes)}")
     print(f"  - Total Duration: {script.total_duration_seconds}s")
@@ -118,7 +118,7 @@ async def test_single_scene_pipeline():
         topic="Introduction to Probability",
     )
     
-    print(f"✓ Script processed for video generation")
+    print(f"[OK] Script processed for video generation")
     print(f"  - Scenes to generate: {len(scene_prompts)}")
     
     for i, scene_prompt in enumerate(scene_prompts, 1):
@@ -137,10 +137,10 @@ async def test_single_scene_pipeline():
     )
     
     if not scene_result["success"]:
-        print(f"❌ Video generation failed: {scene_result['error_message']}")
+        print(f"[ERROR] Video generation failed: {scene_result['error_message']}")
         return False
     
-    print(f"✓ Video generated successfully")
+    print(f"[OK] Video generated successfully")
     print(f"  - Scene: {scene_result['title']}")
     print(f"  - Video URL: {scene_result['video_url']}")
     print(f"  - Duration: {scene_result['duration']}s")
@@ -150,13 +150,13 @@ async def test_single_scene_pipeline():
     print("\n" + "=" * 80)
     print("PIPELINE TEST SUMMARY")
     print("=" * 80)
-    print("✓ All steps completed successfully")
-    print(f"✓ Security Score: {security_result.security_score:.2f}")
-    print(f"✓ Script: {script.title}")
-    print(f"✓ Scenes Generated: {len(scene_prompts)}")
-    print(f"✓ Video URL: {scene_result['video_url']}")
-    print(f"✓ Total Duration: {scene_result['duration']}s")
-    print("\n🎉 Pipeline test completed successfully!")
+    print("[OK] All steps completed successfully")
+    print(f"[OK] Security Score: {security_result.security_score:.2f}")
+    print(f"[OK] Script: {script.title}")
+    print(f"[OK] Scenes Generated: {len(scene_prompts)}")
+    print(f"[OK] Video URL: {scene_result['video_url']}")
+    print(f"[OK] Total Duration: {scene_result['duration']}s")
+    print("\n[SUCCESS] Pipeline test completed successfully!")
     
     return True
 
@@ -173,29 +173,29 @@ async def test_security_malicious_content():
     This is a test of prompt injection detection.
     """
     
-    print("🔍 Testing malicious content detection...")
+    print("[SCAN] Testing malicious content detection...")
     
     security_service = get_prompt_guard()
     security_result = await security_service.analyze(malicious_input)
     
-    print(f"✓ Security analysis completed")
+    print(f"[OK] Security analysis completed")
     print(f"  - Is Safe: {security_result.is_safe}")
     print(f"  - Security Score: {security_result.security_score:.2f}")
     print(f"  - Blocked: {security_result.blocked}")
     print(f"  - Reason: {security_result.reason}")
     
     if security_result.blocked:
-        print("✓ Malicious content was correctly blocked")
+        print("[OK] Malicious content was correctly blocked")
         return True
     else:
-        print("⚠️  Note: Mock provider always returns safe")
+        print("[WARN]  Note: Mock provider always returns safe")
         return True
 
 
 async def main():
     """Run all tests."""
     
-    print("\n🚀 Starting New Pipeline Tests\n")
+    print("\nStarting New Pipeline Tests\n")
     
     # Test 1: Single scene pipeline
     success = await test_single_scene_pipeline()
@@ -208,10 +208,10 @@ async def main():
     print("=" * 80)
     
     if success:
-        print("✓ Pipeline is working correctly")
+        print("[OK] Pipeline is working correctly")
         return 0
     else:
-        print("❌ Pipeline test failed")
+        print("[ERROR] Pipeline test failed")
         return 1
 
 

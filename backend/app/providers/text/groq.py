@@ -157,7 +157,8 @@ Your response:
             logger.error("groq_structured_generation_failed", error=str(exc))
             raise AIServiceError(f"Groq structured generation failed: {exc}") from exc
 
-    def is_configured(self) -> bool:
+    @staticmethod
+    def is_configured() -> bool:
         """Check if Groq provider is properly configured."""
         return bool(settings.GROQ_API_KEY) and _HAS_GROQ
 

@@ -184,7 +184,8 @@ Audio:
                 },
             )
 
-    def is_configured(self) -> bool:
+    @staticmethod
+    def is_configured() -> bool:
         """Check if MiniMax H3 provider is properly configured."""
         return bool(settings.HF_TOKEN) and _HAS_HUGGINGFACE
 
@@ -194,6 +195,38 @@ class MockMiniMaxH3Provider(VideoGenerationProvider):
 
     def __init__(self) -> None:
         logger.warning("Using MockMiniMaxH3Provider - no real API calls will be made")
+
+    def _build_educational_prompt(
+        self,
+        topic: str,
+        scene_description: str,
+        visual_style: str = "Clean educational animation, modern classroom, professional academic style",
+        camera: str = "Medium shot, slow camera movement",
+        action: str = "Educational content presentation",
+        audio: str = "Clear educational narration in Spanish, subtle classroom ambience, no background music",
+    ) -> str:
+        """Build a specialized prompt for educational video generation."""
+        prompt = f"""Create a high-quality educational video scene.
+
+Topic:
+{topic}
+
+Scene:
+{scene_description}
+
+Visual style:
+{visual_style}
+
+Camera:
+{camera}
+
+Action:
+{action}
+
+Audio:
+{audio}
+"""
+        return prompt.strip()
 
     def generate_sync(
         self,

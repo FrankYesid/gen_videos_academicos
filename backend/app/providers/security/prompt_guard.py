@@ -177,7 +177,8 @@ class GroqPromptGuard(PromptSecurityService):
             }
         )
 
-    def is_configured(self) -> bool:
+    @staticmethod
+    def is_configured() -> bool:
         """Check if Prompt Guard is properly configured."""
         return bool(settings.GROQ_API_KEY) and _HAS_GROQ
 
